@@ -53,3 +53,16 @@ spec:
 ### Negative caching
 
 The `denial` cache TTL has been reduced to the minimum of 5 seconds [here](https://github.com/kubernetes/kubernetes/blob/a38ed2c5ceedf682cbc19442aac5224ae6e10eaa/cluster/addons/dns/nodelocaldns/nodelocaldns.yaml#L61). In the unlikely event that this impacts performance, setting this TTL to a higher value make help alleviate issues, but be aware that operations that rely on DNS polling for orchestration may fail (for example operators with StatefulSets).
+
+
+## quick start
+
+```shell
+kubedns=`kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}`
+domain=cluster.local
+localdns=169.254.20.10
+```
+
+```shell
+sed -i "s/__PILLAR__LOCAL__DNS__/$localdns/g; s/__PILLAR__DNS__DOMAIN__/$domain/g; s/__PILLAR__DNS__SERVER__/$kubedns/g" nodelocaldns.yaml
+```
