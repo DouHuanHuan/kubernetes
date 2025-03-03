@@ -54,7 +54,7 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
 data:
   Corefile: |
-    __PILLAR__DNS__DOMAIN__:53 {
+    cluster.local:53 {
         errors
         cache {
                 success 9984 30
@@ -62,30 +62,19 @@ data:
         }
         reload
         loop
-        bind __PILLAR__LOCAL__DNS__ __PILLAR__DNS__SERVER__
+        bind 169.254.20.10 10.96.0.10
         forward . __PILLAR__CLUSTER__DNS__ {
                 force_tcp
         }
         prometheus :9253
-        health __PILLAR__LOCAL__DNS__:8080
+        health 169.254.20.10:8080
         }
     in-addr.arpa:53 {
         errors
         cache 30
         reload
         loop
-        bind __PILLAR__LOCAL__DNS__ __PILLAR__DNS__SERVER__
-        forward . __PILLAR__CLUSTER__DNS__ {
-                force_tcp
-        }
-        prometheus :9253
-        }
-    ip6.arpa:53 {
-        errors
-        cache 30
-        reload
-        loop
-        bind __PILLAR__LOCAL__DNS__ __PILLAR__DNS__SERVER__
+        bind 169.254.20.10 10.96.0.10
         forward . __PILLAR__CLUSTER__DNS__ {
                 force_tcp
         }
@@ -96,7 +85,7 @@ data:
         cache 30
         reload
         loop
-        bind __PILLAR__LOCAL__DNS__ __PILLAR__DNS__SERVER__
+        bind 169.254.20.10 10.96.0.10
         forward . __PILLAR__UPSTREAM__SERVERS__
         prometheus :9253
         }
@@ -143,7 +132,7 @@ spec:
           requests:
             cpu: 25m
             memory: 5Mi
-        args: [ "-localip", "__PILLAR__LOCAL__DNS__,__PILLAR__DNS__SERVER__", "-conf", "/etc/Corefile", "-upstreamsvc", "kube-dns-upstream" ]
+        args: [ "-localip", "169.254.20.10,10.96.0.10", "-conf", "/etc/Corefile", "-upstreamsvc", "kube-dns-upstream" ]
         securityContext:
           capabilities:
             add:
@@ -160,7 +149,7 @@ spec:
           protocol: TCP
         livenessProbe:
           httpGet:
-            host: __PILLAR__LOCAL__DNS__
+            host: 169.254.20.10
             path: /health
             port: 8080
           initialDelaySeconds: 60
